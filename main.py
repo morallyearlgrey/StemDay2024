@@ -1,3 +1,4 @@
+# im so sorry i just forgot this needed to professional and sweared in the commit so committing again
 # Imports
 from tkinter import *
 from tkinter import ttk
