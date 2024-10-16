@@ -1,44 +1,76 @@
 # im so sorry i just forgot this needed to professional and sweared in the commit so committing again
+# LMFAO
 # Imports
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
+from tkinter.font import Font
 
 # Create the main menu and initialize the very cool name
 root = Tk()
 root.title("Rock, Paper, AI Sensors")
 
 # Color Palette (based off the illustration)
-beige = "#e3d4d7"
-blue = "#5483c3"
-red = "#c05851"
+beige = "#e2d5d5"
+blue = "#5582c4"
+red = "#c05953"
 green = "#72c68a"
-black = "#403139"
-gray = "#9f8b8a"
+black = "#393845"
+gray = "#9d8c89"
+orange = "#c58955"
+yellow = "#f7d559"
 
 # Configure the main window's grid and its border
 root.grid_rowconfigure(0, weight=0)
 root.grid_rowconfigure(1, weight=1)
 root.grid_columnconfigure(0, weight=1)
-root.config(bg=beige, highlightthickness=10, highlightbackground=blue, highlightcolor=blue)
+root.config(bg=beige, highlightthickness=13, highlightbackground=blue, highlightcolor=blue)
+
+# automatically fullscreens it
+root.attributes("-fullscreen", True)
+
+# Function to exit fullscreen mode
+def exit_fullscreen(event=None):
+    root.attributes("-fullscreen", False)
+    root.overrideredirect(False)
+
+# Function to toggle fullscreen mode
+def toggle_fullscreen(event=None):
+    is_fullscreen = root.attributes("-fullscreen")
+    root.attributes("-fullscreen", not is_fullscreen)
+    root.overrideredirect(not is_fullscreen)
+
+# Bind the Escape key to exit fullscreen mode
+root.bind("<Escape>", exit_fullscreen)
+
+# Bind the F11 key to toggle fullscreen mode
+root.bind("<F11>", toggle_fullscreen)
 
 # Title on the top of the screen configuration
 label = Label(
     root,
     text="ROCK, PAPER, AI SENSORS",
-    font=("Kalam", 100),
+    font=("Kalam", 60, "bold"),
     foreground=black,
     bg=beige
-
 )
 label.grid(column=0, row=0, pady=(40, 10))
 
 content = Frame(root, bg=beige)
 content.grid(row=1, column=0, sticky='nsew')
 
-# i wanted to add the solid line here
-solid_line = Frame(content, width=5, bg=black)
-solid_line.grid(row=0, column=1, sticky='ns')
+#below is used to get specific coords of the mouse click so I know where to place things!
+# Create a Canvas widget
+canvas = Canvas(content, width=5, bg=beige, highlightthickness=0)
+canvas.grid(row=0, column=1, sticky='ns')
+# Function to print coordinates on click
+def print_coords(event):
+    print(f"Clicked at: ({event.x}, {event.y})")
+# Bind left mouse click to print_coords function
+canvas.bind("<Button-1>", print_coords)
+
+# Draw a dashed line on the Canvas
+canvas.create_line(2, -10, 2, 670, fill=orange, width=10, dash=(50, 1))
 
 # Set the content of what's going to be in the grid
 # AI Frame
@@ -95,21 +127,22 @@ playerInfoFrame.grid(row=0, column=0, sticky='nsew')
 backgroundFrame = Frame(content, bg=beige, width=200, height=200)
 backgroundFrame.grid(column=1, row=0, sticky='ew')
 
-backgroundImagePath = "./StemDay2024/images/test-image.png"
+backgroundImagePath = "images/NumberGraphic.png"
 backgroundImage = Image.open(backgroundImagePath)
-backgroundImage = backgroundImage.resize((200, 200), Image.LANCZOS)
+backgroundImage = backgroundImage.resize((135, 135), Image.LANCZOS)
 backgroundImageTked = ImageTk.PhotoImage(backgroundImage)
 
 backgroundLabel=Label(backgroundFrame, image=backgroundImageTked)
 backgroundLabel.pack(expand=True, fill='both') 
+backgroundLabel.config(bg=beige)
 
 # Number Label
 numberLabel = Label(
     content, 
     text="0",
-    font=("Kalam", 30), 
+    font=("Kalam", 30, "bold"), 
     bg=beige,
-    foreground=black
+    foreground=orange
 )
 numberCount = StringVar()
 numberLabel['textvariable'] = numberCount
@@ -133,18 +166,20 @@ content.grid_rowconfigure(2, weight=1)
 aiTitle = Label(
     AIInfoFrame, 
     text="AI", 
-    font=("Kalam", 50),
+    font=("Kalam", 50, "bold"),
     padx=100,
-    bg=gray
+    bg=gray,
+    fg=black
 )
 
 aiScore = StringVar()
 aiLabel = Label(
     AIInfoFrame, 
     textvariable=aiScore,
-    font=("Kalam", 50),
+    font=("Kalam", 50, "bold"),
     padx=40,
-    bg=red
+    bg=red,
+    fg=beige
 )
 
 aiLabel['textvariable'] = aiScore
@@ -154,9 +189,10 @@ aiScore.set("0")
 playerTitle = Label(
     playerInfoFrame, 
     text="PLAYER", 
-    font=("Kalam", 50),
-    padx=37,
-    bg=gray
+    font=("Kalam", 50, "bold"),
+    padx=0,
+    bg=gray,
+    fg=black
 )
 
 playerScore = StringVar()
@@ -164,9 +200,10 @@ playerScore = StringVar()
 playerLabel = Label(
     playerInfoFrame, 
     textvariable=playerScore,
-    font=("Kalam", 50),
+    font=("Kalam", 50, "bold"),
     padx=40,
-    bg=green
+    bg=green,
+    fg=beige
 )
 
 playerLabel['textvariable'] = playerScore
