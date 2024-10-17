@@ -58,7 +58,6 @@ label = Label(
     root,
     text="ROCK, PAPER, AI SENSORS",
     font=("Kalam", 60, "bold"),
-    font=("Kalam", 60, "bold"),
     foreground=black,
     bg=beige
 )
@@ -198,9 +197,7 @@ numberLabel = Label(
     content, 
     text="0",
     font=("Kalam", 30, "bold"), 
-    font=("Kalam", 30, "bold"), 
     bg=beige,
-    foreground=orange
     foreground=orange
 )
 numberCount = StringVar()
@@ -229,10 +226,7 @@ aiTitle = Label(
     AIInfoFrame, 
     text="AI", 
     font=("Kalam", 50, "bold"),
-    font=("Kalam", 50, "bold"),
     padx=100,
-    bg=gray,
-    fg=black
     bg=gray,
     fg=black
 )
@@ -242,10 +236,7 @@ aiLabel = Label(
     AIInfoFrame, 
     textvariable=aiScore,
     font=("Kalam", 50, "bold"),
-    font=("Kalam", 50, "bold"),
     padx=40,
-    bg=red,
-    fg=beige
     bg=red,
     fg=beige
 )
@@ -261,10 +252,6 @@ playerTitle = Label(
     padx=0,
     bg=gray,
     fg=black
-    font=("Kalam", 50, "bold"),
-    padx=0,
-    bg=gray,
-    fg=black
 )
 
 playerScore = StringVar()
@@ -273,10 +260,7 @@ playerLabel = Label(
     playerInfoFrame, 
     textvariable=playerScore,
     font=("Kalam", 50, "bold"),
-    font=("Kalam", 50, "bold"),
     padx=40,
-    bg=green,
-    fg=beige
     bg=green,
     fg=beige
 )
