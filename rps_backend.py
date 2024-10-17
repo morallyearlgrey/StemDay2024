@@ -74,138 +74,135 @@ class WebcamAI:
     def __init__(self, window):
         self.window = window
         self.window.title("Webcam")
-
         self.webcam = cv2.VideoCapture(0) # Using OpenCV to capture from the webcam
-
         self.current_image = None
-
         self.canvas = tk.Canvas(window, width=640,height=480)
         self.canvas.pack()
 
-        self.update_webcam()
-
-    def update_webcam(self):
         # Loading in mediapipe drawing tools
-        mp_drawing = mp.solutions.drawing_utils
-        mp_drawing_styles = mp.solutions.drawing_styles
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.mp_drawing_styles = mp.solutions.drawing_styles
         # Loading mediapipe hand-specific analysis tools
-        mp_hands = mp.solutions.hands
-        # List of possible gestures CPU can choose from
-        cpu_choices = ["Rock", "Paper", "Scissors"]
-        # Default CPU and player's chosen gestures to nothing first
-        cpu_choice, player_choice = "Nothing", "Nothing"
-        # Set scores for CPU and player to zero
-        cpu_score, player_score = 0, 0
-        # Set color of winner to green by default
-        winner_colour = (0, 255, 0)
-        # Determines whether hand is detected and should be analyzed for finger count
-        hand_valid = False
-        # List of possible gestures in image, using number of fingers as index
-        display_values = ["Rock", "Invalid", "Scissors", "Invalid", "Invalid", "Paper"]
-        # Text displayed for winner at end-of-game
-        winner = "None"
-        # Queue list containing five "nothing" elements
-        de = deque(['Nothing'] * 5, maxlen=5)
-        with mp_hands.Hands(
+        self.mp_hands = mp.solutions.hands
+        self.hands = self.mp_hands.Hands(
                 model_complexity=0,
                 min_detection_confidence=0.5,
-                min_tracking_confidence=0.5) as hands:
-            success, frame = self.webcam.read()
-            # Running program if webcam found
-            if success:
-                # Formatting image color type, orientation, and more before analysis
-                frame = cv2.flip(frame, 1)
-                frame.flags.writeable = False
-                results = hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-                frame.flags.writeable = True
-                # Type (left or right) of hand on screen (0 or 1)
-                handNumber = 0
-                # List of hand joints, including their coordinates and which hand they are on
-                hand_landmarks = []
-                # Condition checking whether finger counting should be happening
-                isCounting = False
-                # Int count of held-up fingers
-                count = 0
+                min_tracking_confidence=0.5)
+        # List of possible gestures CPU can choose from
+        self.cpu_choices = ["Rock", "Paper", "Scissors"]
+        # Default CPU and player's chosen gestures to nothing first
+        self.cpu_choice, self.player_choice = "Nothing", "Nothing"
+        # Set scores for CPU and player to zero
+        self.cpu_score, self.player_score = 0, 0
+        # Set color of winner to green by default
+        self.winner_color = (0, 255, 0)
+        # Determines whether hand is detected and should be analyzed for finger count
+        self.hand_valid = False
+        # List of possible gestures in image, using number of fingers as index
+        self.display_values = ["Rock", "Invalid", "Scissors", "Invalid", "Invalid", "Paper"]
+        # Text displayed for winner at end-of-game
+        self.winner = "None"
+        # Queue list containing five "nothing" elements
+        self.de = deque(['Nothing'] * 5, maxlen=5)
+        self.delay = 15
+        self.update_webcam()
+        if cv2.waitKey(1) & 0xFF == 27:
+            self.hands.close()
 
-                # If at least one hand is detected counting will happen
-                if results.multi_hand_landmarks:
-                    isCounting = True
 
-                    # hand_valid acts as a flag for when hand is first detected so the CPU does not "play" a move multiple times
-                    if player_choice != "Nothing" and not hand_valid:
+    def update_webcam(self):
+        success, frame = self.webcam.read()
+        # Running program if webcam found
+        if success:
+            # Formatting image color type, orientation, and more before analysis
+            frame = cv2.flip(frame, 1)
+            frame.flags.writeable = False
+            results = self.hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            frame.flags.writeable = True
+            # Type (left or right) of hand on screen (0 or 1)
+            handNumber = 0
+            # List of hand joints, including their coordinates and which hand they are on
+            hand_landmarks = []
+            # Condition checking whether finger counting should be happening
+            isCounting = False
+            # Int count of held-up fingers
+            count = 0
 
-                        hand_valid = True
-                        # Select random gesture for CPU to play
-                        cpu_choice = random.choice(cpu_choices)
-                        # Choose winner from CPU and player choices
-                        winner = calculate_winner(cpu_choice, player_choice)
+            # If at least one hand is detected counting will happen
+            if results.multi_hand_landmarks:
+                isCounting = True
 
-                        # Incrementing scores of player or CPU and choosing end-game win message color
-                        if winner == "You win!":
-                            player_score += 1
-                            winner_colour = (255, 0, 0)
-                        elif winner == "CPU wins!":
-                            cpu_score += 1
-                            winner_colour = (0, 0, 255)
-                        elif winner == "Invalid!" or winner == "Tie!":
-                            winner_colour = (0, 255, 0)
+                # hand_valid acts as a flag for when hand is first detected so the CPU does not "play" a move multiple times
+                if self.player_choice != "Nothing" and not self.hand_valid:
 
-                    # Drawing the hand skeletons
-                    for hand in results.multi_hand_landmarks:
-                        # Identifying joints and drawing on screen
-                        mp_drawing.draw_landmarks(
-                            frame,
-                            hand,
-                            mp_hands.HAND_CONNECTIONS,
-                            mp_drawing_styles.get_default_hand_landmarks_style(),
-                            mp_drawing_styles.get_default_hand_connections_style())
+                    self.hand_valid = True
+                    # Select random gesture for CPU to play
+                    self.cpu_choice = random.choice(self.cpu_choices)
+                    # Choose winner from CPU and player choices
+                    self.winner = calculate_winner(self.cpu_choice, self.player_choice)
 
-                        # Figures out whether it's a left hand or right hand in frame
-                        label = results.multi_handedness[handNumber].classification[0].label
+                    # Incrementing scores of player or CPU and choosing end-game win message color
+                    if self.winner == "You win!":
+                        self.player_score += 1
+                        self.winner_color = (255, 0, 0)
+                    elif self.winner == "CPU wins!":
+                        self.cpu_score += 1
+                        self.winner_color = (0, 0, 255)
+                    elif self.winner == "Invalid!" or self.winner == "Tie!":
+                        self.winner_color = (0, 255, 0)
 
-                        # Converts unit-less hand landmarks into pixel counts
-                        for id, landmark in enumerate(hand.landmark):
-                            imgH, imgW, imgC = frame.shape
-                            xPos, yPos = int(landmark.x *
-                                             imgW), int(landmark.y * imgH)
+                # Drawing the hand skeletons
+                for hand in results.multi_hand_landmarks:
+                    # Identifying joints and drawing on screen
+                    self.mp_drawing.draw_landmarks(
+                        frame,
+                        hand,
+                        self.mp_hands.HAND_CONNECTIONS,
+                        self.mp_drawing_styles.get_default_hand_landmarks_style(),
+                        self.mp_drawing_styles.get_default_hand_connections_style())
 
-                            hand_landmarks.append([id, xPos, yPos, label])
+                    # Figures out whether it's a left hand or right hand in frame
+                    label = results.multi_handedness[handNumber].classification[0].label
 
-                        # Number of fingers held up are counted
-                        count = compute_fingers(hand_landmarks, count)
+                    # Converts unit-less hand landmarks into pixel counts
+                    for id, landmark in enumerate(hand.landmark):
+                        imgH, imgW, imgC = frame.shape
+                        xPos, yPos = int(landmark.x *
+                                         imgW), int(landmark.y * imgH)
 
-                        # Switch to next hand (if available) to analyze
-                        handNumber += 1
-                # If there is no hand detected, there is no valid hand for the game to happen
-                else:
-                    hand_valid = False
+                        hand_landmarks.append([id, xPos, yPos, label])
 
-                # The number of fingers being held up is used to determine which move is made by the player
-                if isCounting and count <= 5:
-                    player_choice = display_values[count]
-                    # Counting errors accounted for as invalid
-                elif isCounting:
-                    player_choice = "Invalid"
-                    # Player cannot have gesture inputted if fingers have not been counted
-                else:
-                    player_choice = "Nothing"
+                    # Number of fingers held up are counted
+                    count = compute_fingers(hand_landmarks, count)
 
-                # Adding the detected move to the left of the double-ended queue
-                de.appendleft(player_choice)
-
-                # Instead of using the first move detected, the mode (most often observed gesture) is taken for more accurate detection
-                try:
-                    player_choice = st.mode(de)
-                except st.StatisticsError:
-                    print("Stats Error")
-
-                self.current_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-                self.photo = ImageTk.PhotoImage(image=self.current_image)
-                self.canvas.create_image(0, 0, image=self.photo, anchor=tk.NW)
-                self.window.after(15, self.update_webcam)
+                    # Switch to next hand (if available) to analyze
+                    handNumber += 1
+            # If there is no hand detected, there is no valid hand for the game to happen
             else:
-                print("Error: Video capture failed")
+                self.hand_valid = False
 
-root = tk.Tk()
-app = WebcamAI(root)
-root.mainloop()
+            # The number of fingers being held up is used to determine which move is made by the player
+            if isCounting and count <= 5:
+                self.player_choice = self.display_values[count]
+                # Counting errors accounted for as invalid
+            elif isCounting:
+                self.player_choice = "Invalid"
+                # Player cannot have gesture inputted if fingers have not been counted
+            else:
+                self.player_choice = "Nothing"
+
+            # Adding the detected move to the left of the double-ended queue
+            self.de.appendleft(self.player_choice)
+
+            # Instead of using the first move detected, the mode (most often observed gesture) is taken for more accurate detection
+            try:
+                self.player_choice = st.mode(self.de)
+            except st.StatisticsError:
+                print("Stats Error")
+
+            self.current_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            self.photo = ImageTk.PhotoImage(image=self.current_image)
+            self.canvas.create_image(0, 0, image=self.photo, anchor=tk.NW)
+        else:
+            print("Error: Video capture failed")
+        self.window.after(self.delay, self.update_webcam)
