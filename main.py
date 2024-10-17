@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
 from tkinter.font import Font
+from tkinter.font import Font
 
 # MAIN MENU AND TITLE INITIALIZATION
 # Create the main menu and initialize the title
@@ -14,6 +15,10 @@ beige = "#e2d5d5"
 blue = "#5582c4"
 red = "#c05953"
 green = "#72c68a"
+black = "#393845"
+gray = "#9d8c89"
+orange = "#c58955"
+yellow = "#f7d559"
 black = "#393845"
 gray = "#9d8c89"
 orange = "#c58955"
@@ -52,6 +57,7 @@ root.bind("<F11>", toggle_fullscreen)
 label = Label(
     root,
     text="ROCK, PAPER, AI SENSORS",
+    font=("Kalam", 60, "bold"),
     font=("Kalam", 60, "bold"),
     foreground=black,
     bg=beige
@@ -177,11 +183,13 @@ backgroundFrame.grid(column=1, row=0, sticky='ew')
 backgroundImagePath = "images/NumberGraphic.png"
 backgroundImage = Image.open(backgroundImagePath)
 backgroundImage = backgroundImage.resize((135, 135), Image.LANCZOS)
+backgroundImage = backgroundImage.resize((135, 135), Image.LANCZOS)
 backgroundImageTked = ImageTk.PhotoImage(backgroundImage)
 
 # Pack it into a label and then into the frame supposed to hold the number and it
 backgroundLabel=Label(backgroundFrame, image=backgroundImageTked)
 backgroundLabel.pack(expand=True, fill='both') 
+backgroundLabel.config(bg=beige)
 backgroundLabel.config(bg=beige)
 
 # GAME NUMBER IN THE CENTER
@@ -190,7 +198,9 @@ numberLabel = Label(
     content, 
     text="0",
     font=("Kalam", 30, "bold"), 
+    font=("Kalam", 30, "bold"), 
     bg=beige,
+    foreground=orange
     foreground=orange
 )
 numberCount = StringVar()
@@ -219,7 +229,10 @@ aiTitle = Label(
     AIInfoFrame, 
     text="AI", 
     font=("Kalam", 50, "bold"),
+    font=("Kalam", 50, "bold"),
     padx=100,
+    bg=gray,
+    fg=black
     bg=gray,
     fg=black
 )
@@ -229,7 +242,10 @@ aiLabel = Label(
     AIInfoFrame, 
     textvariable=aiScore,
     font=("Kalam", 50, "bold"),
+    font=("Kalam", 50, "bold"),
     padx=40,
+    bg=red,
+    fg=beige
     bg=red,
     fg=beige
 )
@@ -245,6 +261,10 @@ playerTitle = Label(
     padx=0,
     bg=gray,
     fg=black
+    font=("Kalam", 50, "bold"),
+    padx=0,
+    bg=gray,
+    fg=black
 )
 
 playerScore = StringVar()
@@ -253,7 +273,10 @@ playerLabel = Label(
     playerInfoFrame, 
     textvariable=playerScore,
     font=("Kalam", 50, "bold"),
+    font=("Kalam", 50, "bold"),
     padx=40,
+    bg=green,
+    fg=beige
     bg=green,
     fg=beige
 )
