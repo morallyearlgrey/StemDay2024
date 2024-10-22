@@ -5,6 +5,9 @@ from PIL import Image, ImageTk
 from tkinter.font import Font
 from tkinter.font import Font
 
+
+from rps_backend import WebcamAI
+
 # MAIN MENU AND TITLE INITIALIZATION
 # Create the main menu and initialize the title
 root = Tk()
@@ -98,14 +101,14 @@ aiFrame = Frame(
     borderwidth=0, 
     relief="ridge", 
     width=550, 
-    height=600,
+    height=550,
     bg=beige
 )
 
 # Connecting the AI's images and configuring it 
-aiImagePath = "images/rock.png"
+aiImagePath = "StemDay2024/images/ai_background.png"
 aiImage = Image.open(aiImagePath)
-aiImage = aiImage.resize((350, 350), Image.LANCZOS)
+aiImage = aiImage.resize((300, 300), Image.LANCZOS)
 aiImageTked = ImageTk.PhotoImage(aiImage)
 
 # Creates a frame to hold the AI image
@@ -144,7 +147,7 @@ playerFrame = Frame(
     borderwidth=5, 
     relief="ridge", 
     width=550, 
-    height=600,
+    height=550,
     bg=beige,
 )
 playerFrame['borderwidth'] = 0
@@ -152,22 +155,27 @@ playerFrame['relief'] = 'solid'
 playerFrame.grid_propagate(False)
 
 # Connecting the player's webcam and configuring it 
-playerImagePath = "images/rock.png"
-playerImage = Image.open(playerImagePath)
-playerImage = playerImage.resize((350, 350), Image.LANCZOS)
-playerImageTked = ImageTk.PhotoImage(playerImage)
 
-# Creates a frame to hold the player webcam
-playerImageFrame = Frame(
+# Winner Label
+winnerLabel = Label(
     content,
-    width=350,
-    height=350
+    text="Winner: ",
+    font=("Kalam", 40, "bold"),
+    bg=beige,
+    fg=black
 )
 
-# Connecting the player's images and configuring it 
-playerImageLabel=Label(playerImageFrame, image=playerImageTked)
-playerImageLabel.pack(expand=True, fill='both') 
-playerImageLabel.config(bg=beige)
+winnerText = StringVar()
+winnerLabel['textvariable'] = winnerText
+winnerText.set("...")  
+
+# Place the winner label below the number graphic
+winnerLabel.grid(column=1, row=1, pady=(10, 20))
+
+playerImageFrame = Frame(playerFrame, borderwidth=0, relief="ridge", highlightthickness=0)
+playerImageFrame.pack(expand=True, fill='none') 
+
+
 
 # Frame holding Player Title and Player Label
 playerInfoFrame = Frame(playerFrame, bg=gray)
@@ -179,16 +187,14 @@ backgroundFrame = Frame(content, bg=beige, width=200, height=200)
 backgroundFrame.grid(column=1, row=0, sticky='ew')
 
 # Bring in the number's circular frame graphic
-backgroundImagePath = "images/NumberGraphic.png"
+backgroundImagePath = "StemDay2024/images/NumberGraphic.png"
 backgroundImage = Image.open(backgroundImagePath)
-backgroundImage = backgroundImage.resize((135, 135), Image.LANCZOS)
 backgroundImage = backgroundImage.resize((135, 135), Image.LANCZOS)
 backgroundImageTked = ImageTk.PhotoImage(backgroundImage)
 
 # Pack it into a label and then into the frame supposed to hold the number and it
 backgroundLabel=Label(backgroundFrame, image=backgroundImageTked)
 backgroundLabel.pack(expand=True, fill='both') 
-backgroundLabel.config(bg=beige)
 backgroundLabel.config(bg=beige)
 
 # GAME NUMBER IN THE CENTER
@@ -207,7 +213,6 @@ numberLabel.place(relx=0.5, rely=0.5, anchor='center')
 
 # Set the positions of the elements in the content area
 aiImageFrame.grid(column=0, row=0, padx=(10, 10), pady=(10, 10))
-playerImageFrame.grid(column=2, row=0, padx=(10, 10), pady=(10, 10))
 
 aiFrame.grid(column=0, row=0, padx=(10, 10), pady=(10, 10))
 numberLabel.grid(column=1, row=0, padx=0)
@@ -296,5 +301,6 @@ playerLabel.grid(
 aiFrame.grid_columnconfigure(0, weight=1)
 playerFrame.grid_columnconfigure(0, weight=1)
 
+webcam = WebcamAI(playerImageFrame, winnerText, aiImageLabel, aiScore, playerScore)
 
 root.mainloop()

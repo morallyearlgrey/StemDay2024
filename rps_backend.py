@@ -71,17 +71,34 @@ def compute_fingers(hand_landmarks, finger_count):
 
 # Opening AI analysis with low (0) complexity and confidence levels for hand detection and tracking (default = 0.5)
 class WebcamAI:
-    def __init__(self, window):
+    def __init__(self, window, winnerText, aiImageLabel, aiScoreLabel, playerScoreLabel):
         self.window = window
-        self.window.title("Webcam")
+        self.winnerText = winnerText
+        self.aiImageLabel = aiImageLabel
+        self.aiScoreLabel = aiScoreLabel
+        self.playerScoreLabel = playerScoreLabel
+
+        self.ai_images = {
+            "Rock": "/Users/kaisprunger/StemDay2024/StemDay2024/images/rock.png",
+            "Paper": "/Users/kaisprunger/StemDay2024/StemDay2024/images/paper.png",
+            "Scissors": "/Users/kaisprunger/StemDay2024/StemDay2024/images/paper.png"
+        
+        }
+        
         self.webcam = cv2.VideoCapture(0) # Using OpenCV to capture from the webcam
         self.current_image = None
-        self.canvas = tk.Canvas(window, width=640,height=480)
+
+        self.canvas = tk.Canvas(window, width=550,height=550)
         self.canvas.pack()
+
+        # Configuration for frontend to display webcam feed
+        self.playerImageFrame = tk.Frame(window)
+        self.playerImageFrame.pack()
 
         # Loading in mediapipe drawing tools
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_drawing_styles = mp.solutions.drawing_styles
+
         # Loading mediapipe hand-specific analysis tools
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
@@ -141,15 +158,23 @@ class WebcamAI:
                     # Choose winner from CPU and player choices
                     self.winner = calculate_winner(self.cpu_choice, self.player_choice)
 
+                    self.winnerText.set(self.winner)
+                    self.update_ai_image(self.cpu_choice)
+
                     # Incrementing scores of player or CPU and choosing end-game win message color
                     if self.winner == "You win!":
                         self.player_score += 1
+                        self.playerScoreLabel.set(str(self.player_score))
                         self.winner_color = (255, 0, 0)
+                        
                     elif self.winner == "CPU wins!":
                         self.cpu_score += 1
+                        self.aiScoreLabel.set(str(self.cpu_score))
                         self.winner_color = (0, 0, 255)
+
                     elif self.winner == "Invalid!" or self.winner == "Tie!":
                         self.winner_color = (0, 255, 0)
+                        
 
                 # Drawing the hand skeletons
                 for hand in results.multi_hand_landmarks:
@@ -206,3 +231,15 @@ class WebcamAI:
         else:
             print("Error: Video capture failed")
         self.window.after(self.delay, self.update_webcam)
+
+    def update_ai_image(self, cpu_choice):
+        aiImagePath = self.ai_images[cpu_choice]
+    
+        # Open and resize the AI image
+        aiImage = Image.open(aiImagePath)
+        aiImage = aiImage.resize((300, 300), Image.LANCZOS)
+        aiImageTked = ImageTk.PhotoImage(aiImage)
+
+        # Update the AI image label with the new image
+        self.aiImageLabel.config(image=aiImageTked)
+        self.aiImageLabel.image = aiImageTked
