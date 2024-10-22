@@ -79,9 +79,9 @@ class WebcamAI:
         self.playerScoreLabel = playerScoreLabel
 
         self.ai_images = {
-            "Rock": "/Users/kaisprunger/StemDay2024/StemDay2024/images/rock.png",
-            "Paper": "/Users/kaisprunger/StemDay2024/StemDay2024/images/paper.png",
-            "Scissors": "/Users/kaisprunger/StemDay2024/StemDay2024/images/paper.png"
+            "Rock": "images/rock.png",
+            "Paper": "images/paper.png",
+            "Scissors": "images/paper.png"
         
         }
         
