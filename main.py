@@ -106,7 +106,7 @@ aiFrame = Frame(
 )
 
 # Connecting the AI's images and configuring it 
-aiImagePath = "StemDay2024/images/ai_background.png"
+aiImagePath = "images/ai_background.png"
 aiImage = Image.open(aiImagePath)
 aiImage = aiImage.resize((300, 300), Image.LANCZOS)
 aiImageTked = ImageTk.PhotoImage(aiImage)
@@ -187,7 +187,7 @@ backgroundFrame = Frame(content, bg=beige, width=200, height=200)
 backgroundFrame.grid(column=1, row=0, sticky='ew')
 
 # Bring in the number's circular frame graphic
-backgroundImagePath = "StemDay2024/images/NumberGraphic.png"
+backgroundImagePath = "images/NumberGraphic.png"
 backgroundImage = Image.open(backgroundImagePath)
 backgroundImage = backgroundImage.resize((135, 135), Image.LANCZOS)
 backgroundImageTked = ImageTk.PhotoImage(backgroundImage)
