@@ -3,16 +3,15 @@ import mediapipe as mp  # Performs AI analysis on images and outputs object iden
 import random  # Selects random rock-paper-scissors gesture for computer (CPU) player
 from collections import deque  # Holds list (deque) of last five gesture image detections made by backend
 import statistics as st  # Determines most common gesture in deque as player's selected gesture
-import tkinter as tk #
+import tkinter as tk # Handles GUI tools for use on frontend
 from PIL import Image, ImageTk # Holds webcam video frames to cycle through
+import time
 
 # Determines message displayed at end-of-game
 # Input: CPU's selected gesture (str) and player's selected gesture (str)
 # Output: Game end phrase (str)
 def calculate_winner(cpu_choice, player_choice):
-
     # Determines the winner of each round when passed the computer's and player's moves
-
     if player_choice == "Invalid":
         return "Invalid!"
 
@@ -41,11 +40,9 @@ def calculate_winner(cpu_choice, player_choice):
 # Inputs: List of hand-joint landmarks (lists containing each joint's x-coord [1], y-coord [2], and hand type [3]) and int of held-up fingers counted so far (defaults to 0)
 # Output: Integer count of held-up fingers
 def compute_fingers(hand_landmarks, finger_count):
-
     # Coordinates are used to determine whether a finger is being held up or not
     # This is done by determining whether the tip of the finger is above or below the base of the finger
     # For the thumb it determines whether the tip is to the left or right (depending on whether it's their right or left hand)
-
     # Index Finger (if lower joint is below tip, count finger as held-up)
     if hand_landmarks[8][2] < hand_landmarks[6][2]:
         finger_count += 1
@@ -121,13 +118,22 @@ class WebcamAI:
         self.winner = "None"
         # Queue list containing five "nothing" elements
         self.de = deque(['Nothing'] * 5, maxlen=5)
-        self.delay = 15
+        self.update_delay = 15
+        self.countdown_display = 0
+        self.countdown_ns = 3000
+        self.countdown_start = 3
+        self.button_time_ns = time.time_ns()
+        self.button_pressed = False
         self.update_webcam()
         if cv2.waitKey(1) & 0xFF == 27:
             self.hands.close()
 
-
     def update_webcam(self):
+        cur_time_ns = time.time()
+        if cur_time_ns - self.button_time_ns != 0 and self.button_pressed:
+            self.countdown_display = self.countdown_start % (cur_time_ns - self.button_time_ns)/(10**9)
+        else:
+            self.countdown_display = 0
         success, frame = self.webcam.read()
         # Running program if webcam found
         if success:
@@ -145,14 +151,12 @@ class WebcamAI:
             # Int count of held-up fingers
             count = 0
 
-            # If at least one hand is detected counting will happen
+            # If at least one hand is detected, counting will happen
             if results.multi_hand_landmarks:
                 isCounting = True
 
                 # hand_valid acts as a flag for when hand is first detected so the CPU does not "play" a move multiple times
-                if self.player_choice != "Nothing" and not self.hand_valid:
-
-                    self.hand_valid = True
+                if self.player_choice != "Nothing" and cur_time_ns + self.countdown_ns > self.button_time_ns and self.button_pressed:
                     # Select random gesture for CPU to play
                     self.cpu_choice = random.choice(self.cpu_choices)
                     # Choose winner from CPU and player choices
@@ -174,7 +178,8 @@ class WebcamAI:
 
                     elif self.winner == "Invalid!" or self.winner == "Tie!":
                         self.winner_color = (0, 255, 0)
-                        
+
+                    self.button_pressed = False
 
                 # Drawing the hand skeletons
                 for hand in results.multi_hand_landmarks:
@@ -230,16 +235,22 @@ class WebcamAI:
             self.canvas.create_image(0, 0, image=self.photo, anchor=tk.NW)
         else:
             print("Error: Video capture failed")
-        self.window.after(self.delay, self.update_webcam)
+        self.window.after(self.update_delay, self.update_webcam)
+
 
     def update_ai_image(self, cpu_choice):
         aiImagePath = self.ai_images[cpu_choice]
     
         # Open and resize the AI image
         aiImage = Image.open(aiImagePath)
-        aiImage = aiImage.resize((300, 300), Image.LANCZOS)
-        aiImageTked = ImageTk.PhotoImage(aiImage)
+        aiImage = aiImage.resize((300, 300), Image.Resampling.LANCZOS)
+        aiImageTk = ImageTk.PhotoImage(aiImage)
 
         # Update the AI image label with the new image
-        self.aiImageLabel.config(image=aiImageTked)
-        self.aiImageLabel.image = aiImageTked
+        self.aiImageLabel.config(image=aiImageTk)
+        self.aiImageLabel.image = aiImageTk
+
+    def button_press(self):
+        self.button_pressed = True
+        self.button_time_ns = time.time_ns()
+        self.button_time = time.time()
