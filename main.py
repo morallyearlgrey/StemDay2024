@@ -37,6 +37,7 @@ root.config(bg=beige, highlightthickness=13, highlightbackground=blue, highlight
 
 #root.config(bg=beige) # uncomment this when you want to try the border :3
 
+
 """ note for Kai: I think it can work hyptothetically with this code but the spacing throws off everything. Maybe you can try to
 figure out how to make the border work? I'll leave this here for you, just uncomment when you're ready to try it out!"""
 # good luck...
@@ -193,13 +194,6 @@ playerFrame.grid_propagate(False)
 
 # Connecting the player's webcam and configuring it 
 
-#button for starting the game
-startButton = ttk.Button(content, text='START', style='TButton') #command=myaction)
-startButton.grid(row=1, column=2, pady=(10, 20))
-
-buttonStyle = ttk.Style()
-buttonStyle.configure('TButton', background=blue, foreground=blue, font=("Kalam", 20, "bold"), highlightbackground=blue, activebackground = blue)
-
 # Winner Label
 winnerLabel = Label(
     content,
@@ -250,10 +244,6 @@ numberLabel = Label(
     bg=beige,
     foreground=orange
 )
-numberCount = StringVar()
-numberLabel['textvariable'] = numberCount
-numberCount.set("0")  # Sets the count of the "rock paper scissor" beat
-numberLabel.place(relx=0.5, rely=0.5, anchor='center')
 
 # Set the positions of the elements in the content area
 aiImageFrame.grid(column=0, row=0, padx=(10, 10), pady=(90, 10))
@@ -346,5 +336,27 @@ aiFrame.grid_columnconfigure(0, weight=1)
 playerFrame.grid_columnconfigure(0, weight=1)
 
 webcam = WebcamAI(playerImageFrame, winnerText, aiImageLabel, aiScore, playerScore)
+
+# countdown
+numberCount = StringVar()
+numberLabel['textvariable'] = numberCount
+numberCount.set(f"{webcam.countdown_display}")  # Sets the countdown of the "rock paper scissor" beat
+numberLabel.place(relx=0.5, rely=0.42, anchor='center')
+
+#button for starting the game
+startButton = ttk.Button(content, text='START', style='TButton', command=webcam.button_press)
+startButton.grid(row=1, column=2, pady=(10, 20))
+
+#makes the button unclickable after being clicked
+def disable_button():
+    startButton.state(['disabled'])
+    startButton.configure(style='Disabled.TButton')
+
+startButton.config(command=lambda: [disable_button(), webcam.button_press()])
+
+buttonStyle = ttk.Style()
+buttonStyle.configure('TButton', background=blue, foreground=blue, font=("Kalam", 20, "bold"), highlightbackground=blue, activebackground = blue)
+buttonStyle.map('TButton', background=[('disabled', gray)], foreground=[('disabled', gray)])
+buttonStyle.configure('Disabled.TButton', background=gray, foreground=gray, font=("Kalam", 20, "bold"))
 
 root.mainloop()
