@@ -2,12 +2,8 @@
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
-from tkinter.font import Font
-from tkinter.font import Font
-
 
 from rps_backend import WebcamAI
-
 # MAIN MENU AND TITLE INITIALIZATION
 # Create the main menu and initialize the title
 root = Tk()
@@ -18,10 +14,6 @@ beige = "#e2d5d5"
 blue = "#5582c4"
 red = "#c05953"
 green = "#72c68a"
-black = "#393845"
-gray = "#9d8c89"
-orange = "#c58955"
-yellow = "#f7d559"
 black = "#393845"
 gray = "#9d8c89"
 orange = "#c58955"
@@ -238,9 +230,9 @@ backgroundLabel.config(bg=beige)
 # GAME NUMBER IN THE CENTER
 # Number Label
 numberLabel = Label(
-    content, 
+    content,
     text="0",
-    font=("Kalam", 30, "bold"), 
+    font=("Kalam", 30, "bold"),
     bg=beige,
     foreground=orange
 )
@@ -335,12 +327,9 @@ playerLabel.grid(
 aiFrame.grid_columnconfigure(0, weight=1)
 playerFrame.grid_columnconfigure(0, weight=1)
 
-webcam = WebcamAI(playerImageFrame, winnerText, aiImageLabel, aiScore, playerScore)
+webcam = WebcamAI(playerImageFrame, winnerText, aiImageLabel, aiScore, playerScore, numberLabel)
 
-# countdown
-numberCount = StringVar()
-numberLabel['textvariable'] = numberCount
-numberCount.set(f"{webcam.countdown_display}")  # Sets the countdown of the "rock paper scissor" beat
+# Sets the countdown of the "rock paper scissor" beat
 numberLabel.place(relx=0.5, rely=0.42, anchor='center')
 
 #button for starting the game
@@ -348,15 +337,14 @@ startButton = ttk.Button(content, text='START', style='TButton', command=webcam.
 startButton.grid(row=1, column=2, pady=(10, 20))
 
 #makes the button unclickable after being clicked
-def disable_button():
-    startButton.state(['disabled'])
-    startButton.configure(style='Disabled.TButton')
-
-startButton.config(command=lambda: [disable_button(), webcam.button_press()])
+# def disable_button():
+#     startButton.state(['disabled'])
+#     startButton.configure(style='Disabled.TButton')
+#
+# startButton.config(command=lambda: [disable_button(), webcam.button_press()])
 
 buttonStyle = ttk.Style()
 buttonStyle.configure('TButton', background=blue, foreground=blue, font=("Kalam", 20, "bold"), highlightbackground=blue, activebackground = blue)
 buttonStyle.map('TButton', background=[('disabled', gray)], foreground=[('disabled', gray)])
 buttonStyle.configure('Disabled.TButton', background=gray, foreground=gray, font=("Kalam", 20, "bold"))
-
 root.mainloop()

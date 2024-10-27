@@ -68,12 +68,13 @@ def compute_fingers(hand_landmarks, finger_count):
 
 # Opening AI analysis with low (0) complexity and confidence levels for hand detection and tracking (default = 0.5)
 class WebcamAI:
-    def __init__(self, window, winnerText, aiImageLabel, aiScoreLabel, playerScoreLabel):
+    def __init__(self, window, winnerText, aiImageLabel, aiScoreLabel, playerScoreLabel, numberLabel):
         self.window = window
         self.winnerText = winnerText
         self.aiImageLabel = aiImageLabel
         self.aiScoreLabel = aiScoreLabel
         self.playerScoreLabel = playerScoreLabel
+        self.numberLabel = numberLabel
 
         self.ai_images = {
             "Rock": "images/rock.png",
@@ -81,7 +82,8 @@ class WebcamAI:
             "Scissors": "images/paper.png"
         
         }
-        
+
+
         self.webcam = cv2.VideoCapture(0) # Using OpenCV to capture from the webcam
         self.current_image = None
 
@@ -120,8 +122,10 @@ class WebcamAI:
         self.de = deque(['Nothing'] * 5, maxlen=5)
         self.update_delay = 15
         self.countdown_display = 0
-        self.countdown_ns = 3000
-        self.countdown_start = 3
+        self.numberCount = tk.StringVar()
+        self.numberLabel['textvariable'] = self.numberCount
+        self.numberCount.set(f"{self.countdown_display}")  # Sets the countdown of the "rock paper scissor" beat
+        self.countdown_ns = 3*10**9
         self.button_time_ns = time.time_ns()
         self.button_pressed = False
         self.update_webcam()
@@ -129,9 +133,14 @@ class WebcamAI:
             self.hands.close()
 
     def update_webcam(self):
-        cur_time_ns = time.time()
+        cur_time_ns = time.time_ns()
         if cur_time_ns - self.button_time_ns != 0 and self.button_pressed:
-            self.countdown_display = self.countdown_start % (cur_time_ns - self.button_time_ns)/(10**9)
+            if (cur_time_ns - self.button_time_ns) < self.countdown_ns:
+                self.countdown_display = int((self.countdown_ns - cur_time_ns + self.button_time_ns)/(10**9) + 1)
+            else:
+                self.countdown_display = 0
+            self.numberCount.set(f"{self.countdown_display}")
+            self.numberLabel.update_idletasks()
         else:
             self.countdown_display = 0
         success, frame = self.webcam.read()
@@ -156,7 +165,7 @@ class WebcamAI:
                 isCounting = True
 
                 # hand_valid acts as a flag for when hand is first detected so the CPU does not "play" a move multiple times
-                if self.player_choice != "Nothing" and cur_time_ns + self.countdown_ns > self.button_time_ns and self.button_pressed:
+                if self.player_choice != "Nothing" and cur_time_ns > self.button_time_ns + self.countdown_ns  and self.button_pressed:
                     # Select random gesture for CPU to play
                     self.cpu_choice = random.choice(self.cpu_choices)
                     # Choose winner from CPU and player choices
@@ -253,4 +262,3 @@ class WebcamAI:
     def button_press(self):
         self.button_pressed = True
         self.button_time_ns = time.time_ns()
-        self.button_time = time.time()
