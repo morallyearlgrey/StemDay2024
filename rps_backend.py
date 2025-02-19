@@ -77,9 +77,9 @@ class WebcamAI:
         self.numberLabel = numberLabel
 
         self.ai_images = {
-            "Rock": "images/rock.png",
-            "Paper": "images/paper.png",
-            "Scissors": "images/paper.png"
+            "Rock": "./StemDay2024/images/rock.png",
+            "Paper": "./StemDay2024/images/paper.png",
+            "Scissors": "./StemDay2024/images/scissors.png"
         
         }
 
@@ -252,7 +252,7 @@ class WebcamAI:
     
         # Open and resize the AI image
         aiImage = Image.open(aiImagePath)
-        aiImage = aiImage.resize((300, 300), Image.Resampling.LANCZOS)
+        aiImage = aiImage.resize((200, 200), Image.Resampling.LANCZOS)
         aiImageTk = ImageTk.PhotoImage(aiImage)
 
         # Update the AI image label with the new image
